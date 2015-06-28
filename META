@@ -1,0 +1,7 @@
+name= "wseg"
+version = "0.1"
+description = "word segementer"
+requires="core_kernel,trie,pcre,camomile"
+archive(byte)= "wseg.cma"
+archive(native)= "wseg.cmxa"
+
