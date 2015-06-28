@@ -1,0 +1,4 @@
+PKG core_kernel
+PKG trie
+PKG pcre
+PKG camomile
