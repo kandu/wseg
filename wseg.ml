@@ -43,19 +43,25 @@ module Dict = struct
 
   type word= string list * float
   type chunk= word list
+  type result= string list
 
-  let dispCond cd=
+  let dispConds cd=
     List.iter cd ~f:(fun (cl, freq)->
       List.iter cl ~f:(printf "%s ");
       print_newline ());
     print_newline ()
 
-  let dispCand cd=
+  let dispCands cd=
     List.iter cd ~f:(fun (wl:word list)->
       List.iter wl ~f:(fun (cl, freq)->
         List.iter cl ~f:print_string; print_string " ");
         print_newline ());
     print_newline ()
+
+  let result_of_cand wl=
+    List.map wl ~f:(fun (cl, freq)->
+      String.concat ~sep:"" cl)
+    |> String.concat ~sep:"|"
 
   let condWord node s=
     let rec condWord node cl pos= match cl with
