@@ -24,11 +24,23 @@ let test dict max str=
     | None-> ()
   end
 
+let rex= Pcre.regexp "^([^\t]+)\t([^\t]+)"
+
+let get_entry s=
+  let ss= Pcre.exec ~rex s |> Pcre.get_substrings in
+  (ss.(1), Float.of_string ss.(2))
+
+let lines_to_entries= List.map ~f:get_entry
+
 let ()=
   let charEntries=
-    Dict.buildEntries (In_channel.read_lines "char.dic")
+    (In_channel.read_lines "char.dic")
+      |> lines_to_entries
+      |> Dict.buildEntries
   and wordEntries=
-    Dict.buildEntries (In_channel.read_lines "word.dic")
+    (In_channel.read_lines "word.dic")
+      |> lines_to_entries
+      |> Dict.buildEntries
   in
   let wordDict= Dict.buildIndex (List.append charEntries wordEntries) in
   test wordDict 4 "研究生命起源";
