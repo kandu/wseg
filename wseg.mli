@@ -11,8 +11,9 @@ module Dict :
     type word= string list * float
     type chunk= word list
 
-    val dispCond : word list -> unit
-    val dispCand : chunk list -> unit
+    val dispConds : word list -> unit
+    val dispCands : chunk list -> unit
+    val result_of_cand : chunk -> string
 
     val buildEntries :
       string list -> (string * float) list
