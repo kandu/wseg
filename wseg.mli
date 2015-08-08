@@ -15,12 +15,9 @@ module Dict :
     val dispCands : chunk list -> unit
     val result_of_cand : chunk -> string
 
-    val buildEntries :
-      string list -> (string * float) list
-    val buildIndex :
-       entries-> float Tree.node
-    val candidates :
-      float Tree.node -> string -> int -> chunk list
+    val buildEntries : entries -> entries
+    val buildIndex : entries-> float Tree.node
+    val candidates : float Tree.node -> string -> int -> chunk list
   end
 
 module MMSEG :

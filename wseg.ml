@@ -21,19 +21,12 @@ module Dict = struct
     in
     to_list pos
 
-  let rex= Pcre.regexp "^([^\t]+)\t([^\t]+)"
-
-  let get_entry s=
-    let ss= Pcre.exec ~rex s |> Pcre.get_substrings in
-    (ss.(1), Float.of_string ss.(2))
-
   let buildEntries rawEntries=
-    let entries= List.map rawEntries ~f:get_entry in
-    let quantity= List.fold entries
+    let quantity= List.fold rawEntries
       ~init:0.
       ~f:(fun acc (char, count)-> acc +. count)
     in
-    List.map entries ~f:(fun (char, count)-> (char, count /. quantity))
+    List.map rawEntries ~f:(fun (char, count)-> (char, count /. quantity))
 
   let buildIndex entries=
     let tree= Tree.create None in
