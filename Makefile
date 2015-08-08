@@ -5,10 +5,10 @@ CC= gcc
 lib: wseg.cma wseg.cmxa
 
 wseg.cma: wseg.ml
-	ocamlfind ocamlc -package core_kernel,trie,pcre,camomile -a -o $@ $^
+	ocamlfind ocamlc -g -package core_kernel,trie,pcre,camomile -a -o $@ $^
 
 wseg.cmxa: wseg.ml
-	ocamlfind ocamlopt -package core_kernel,trie,pcre,camomile -a -o $@ $^
+	ocamlfind ocamlopt -g -package core_kernel,trie,pcre,camomile -a -o $@ $^
 
 wseg.ml: wseg.cmi
 
@@ -27,8 +27,8 @@ uninstall:
 test: test.byte
 	./test.byte
 
-test.byte: test.ml
-	ocamlfind ocamlc -linkpkg -g -package wseg -o $@ $^
+test.byte: test.ml lib
+	ocamlfind ocamlc -linkpkg -g -package core_kernel,pcre,camomile,trie wseg.cma -o $@ $<
 
 clean:
 	rm -f *.annot *.o *.cm* *.a
