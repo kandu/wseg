@@ -4,6 +4,9 @@ open Fn
 module Dict = struct
   module Tree = Trie.Make(String)
 
+  type entry= string * float
+  type entries= entry list
+
   let split_utf8 ?(pos=0) s=
     let len= String.length s in
     let rec to_list pos=
