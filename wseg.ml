@@ -1,4 +1,4 @@
-open Core_kernel.Std
+open Core_kernel
 open Fn
 
 module Dict = struct
@@ -41,15 +41,15 @@ module Dict = struct
   let dispConds cd=
     List.iter cd ~f:(fun (cl, freq)->
       List.iter cl ~f:(printf "%s ");
-      print_newline ());
-    print_newline ()
+      Out_channel.newline stdout);
+    Out_channel.newline stdout
 
   let dispCands cd=
     List.iter cd ~f:(fun (wl:word list)->
       List.iter wl ~f:(fun (cl, freq)->
         List.iter cl ~f:print_string; print_string " ");
-        print_newline ());
-    print_newline ()
+        Out_channel.newline stdout);
+    Out_channel.newline stdout
 
   let result_of_cand wl=
     List.map wl ~f:(fun (cl, freq)->
