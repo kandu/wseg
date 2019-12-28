@@ -1,8 +1,16 @@
-open Core_kernel
-open Fn
+open Base
+open Stdio
+
+module Tuple2 = struct
+  let get1 (v, _)= v
+  let get2 (_, v)= v
+end
 
 module Dict = struct
-  module Tree = Trie.Make(String)
+  module Tree = Trie.Make(struct
+      include String
+      let hash= Hashtbl.hash
+    end)
 
   type entry= string * float
   type entries= entry list
@@ -22,16 +30,19 @@ module Dict = struct
     to_list pos
 
   let buildEntries rawEntries=
-    let quantity= List.fold rawEntries
-      ~init:0.
+    let quantity= List.fold
       ~f:(fun acc (char, count)-> acc +. count)
+      ~init:0.
+      rawEntries
     in
-    List.map rawEntries ~f:(fun (char, count)-> (char, count /. quantity))
+    rawEntries
+      |> List.map ~f:(fun (char, count)-> (char, count /. quantity))
 
   let buildIndex entries=
     let tree= Tree.create None in
-    List.iter entries ~f:(fun (token, freq)->
-      Tree.set tree (split_utf8 token) freq);
+    List.iter ~f:(fun (token, freq)->
+      Tree.set tree (split_utf8 token) freq)
+      entries;
     tree
 
   type word= string list * float
@@ -39,21 +50,25 @@ module Dict = struct
   type result= string list
 
   let dispConds cd=
-    List.iter cd ~f:(fun (cl, freq)->
-      List.iter cl ~f:(printf "%s ");
-      Out_channel.newline stdout);
+    List.iter ~f:(fun (cl, freq)->
+      List.iter ~f:(printf "%s ") cl;
+      Out_channel.newline stdout)
+      cd;
     Out_channel.newline stdout
 
   let dispCands cd=
-    List.iter cd ~f:(fun (wl:word list)->
-      List.iter wl ~f:(fun (cl, freq)->
-        List.iter cl ~f:print_string; print_string " ");
-        Out_channel.newline stdout);
+    List.iter ~f:(fun (wl:word list)->
+      List.iter ~f:(fun (cl, freq)->
+        List.iter ~f:print_string cl; print_string " ")
+        wl;
+        Out_channel.newline stdout)
+      cd;
     Out_channel.newline stdout
 
   let result_of_cand wl=
-    List.map wl ~f:(fun (cl, freq)->
+    List.map ~f:(fun (cl, freq)->
       String.concat ~sep:"" cl)
+      wl
     |> String.concat ~sep:"|"
 
   let condWord node s=
@@ -72,105 +87,126 @@ module Dict = struct
     let rec candidates s max=
       if max > 0 && List.length s > 0 then
         let words= condWord wordDict s in
-        List.map words ~f:(fun word->
-          let (cl, freq)= word in
-          let suffix= candidates
-            (List.split_n s (List.length cl) |> Tuple2.get2)
-            (max-1) in
-          match suffix with
-          | []-> [[word]]
-          | _-> List.map suffix ~f:(fun suffix-> word::suffix))
-        |> List.join
+        List.map
+          ~f:(fun word->
+            let (cl, freq)= word in
+            let suffix= candidates
+              (List.split_n s (List.length cl) |> Tuple2.get2)
+              (max-1) in
+            match suffix with
+            | []-> [[word]]
+            | _-> List.map ~f:(fun suffix-> word::suffix) suffix)
+          words
+        |> List.concat
       else []
     in
     candidates (split_utf8 s) max
 end
 
-let length_word (sl, _)= List.fold sl
-  ~init:0
+let length_word (sl, _)= List.fold
   ~f:(fun acc s-> acc + String.length s)
-
-let length_chunk chunk= List.fold chunk
   ~init:0
+  sl
+
+let length_chunk chunk= List.fold
   ~f:(fun acc word-> acc + length_word word)
+  ~init:0
+  chunk
 
 let average chunk= (/.)
-  (List.fold chunk
-    ~init:0
+  (List.fold
     ~f:(fun acc word-> acc + length_word word)
+    ~init:0
+    chunk
     |> Float.of_int)
   (List.length chunk |> Float.of_int)
 
-let possibility_mul chunk= List.fold chunk
-  ~init:1.
+let possibility_mul chunk= List.fold
   ~f:(fun acc (_, freq)-> acc *. freq)
+  ~init:1.
+  chunk
 
 let variance chunk=
   let avg= average chunk in
   (/.)
-    (List.fold chunk
+    (List.fold
+      ~f:(fun acc word->
+        acc +. (Float.of_int (length_word word) -. avg) **. 2.)
       ~init:0.
-      ~f:(fun acc word-> acc +. (Float.of_int (length_word word) -. avg) ** 2.))
+      chunk
+    )
     (List.length chunk |> Float.of_int)
 
 module MMSEG = struct
   let rule1 chunks=
     let (len, res)=
-      List.fold chunks ~init:(0, []) ~f:(fun (len, res) chunk->
-        let len_curr = length_chunk chunk in
-        if len_curr = len then
-          (len, chunk::res)
-        else
-          if len_curr > len then
-            (len_curr, [chunk])
+      List.fold
+        ~f:(fun (len, res) chunk->
+          let len_curr = length_chunk chunk in
+          if len_curr = len then
+            (len, chunk::res)
           else
-            (len, res)
-        )
+            if len_curr > len then
+              (len_curr, [chunk])
+            else
+              (len, res)
+          )
+        ~init:(0, [])
+        chunks
     in
     List.rev res
 
   let rule2 chunks=
     let (avg, res)=
-      List.fold chunks ~init:(0., []) ~f:(fun (avg, res) chunk->
-        let avg_curr = average chunk in
-        if avg_curr = avg then
-          (avg, chunk::res)
-        else
-          if avg_curr > avg then
-            (avg_curr, [chunk])
+      List.fold
+        ~f:(fun (avg, res) chunk->
+          let open Float in
+          let avg_curr = average chunk in
+          if avg_curr = avg then
+            (avg, chunk::res)
           else
-            (avg, res)
-        )
+            if avg_curr > avg then
+              (avg_curr, [chunk])
+            else
+              (avg, res))
+        ~init:(0., [])
+        chunks
     in
     List.rev res
 
   let rule3 chunks=
     let (vari, res)=
-      List.fold chunks ~init:(Float.infinity, []) ~f:(fun (vari, res) chunk->
-        let vari_curr = variance chunk in
-        if vari_curr = vari then
-          (vari, chunk::res)
-        else
-          if vari_curr < vari then
-            (vari_curr, [chunk])
+      List.fold
+        ~f:(fun (vari, res) chunk->
+          let open Float in
+          let vari_curr = variance chunk in
+          if vari_curr = vari then
+            (vari, chunk::res)
           else
-            (vari, res)
-        )
+            if vari_curr < vari then
+              (vari_curr, [chunk])
+            else
+              (vari, res))
+        ~init:(Float.infinity, [])
+        chunks
     in
     List.rev res
 
   let rule4 chunks=
     let (possibility, res)=
-      List.fold chunks ~init:(0., []) ~f:(fun (possibility, res) chunk->
-        let possibility_curr = possibility_mul chunk in
-        if possibility_curr = possibility then
-          (possibility, chunk::res)
-        else
-          if possibility_curr > possibility then
-            (possibility_curr, [chunk])
+      List.fold
+        ~f:(fun (possibility, res) chunk->
+          let open Float in
+          let possibility_curr = possibility_mul chunk in
+          if possibility_curr = possibility then
+            (possibility, chunk::res)
           else
-            (possibility, res)
-        )
+            if possibility_curr > possibility then
+              (possibility_curr, [chunk])
+            else
+              (possibility, res))
+        ~init:(0., [])
+        chunks
     in
     List.rev res
 

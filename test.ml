@@ -1,6 +1,6 @@
-open Core_kernel
-open Fn
 open Wseg
+open Base
+open Stdio
 
 let test dict max str=
   let cand= Dict.candidates dict str max in

@@ -5,16 +5,16 @@ CC= gcc
 lib: wseg.cma wseg.cmxa
 
 wseg.cma: wseg.ml
-	ocamlfind ocamlc -g -package core_kernel,trie,pcre,camomile -a -o $@ $^
+	ocamlfind ocamlc -g -package base,stdio,trie,pcre,camomile -a -o $@ $^
 
 wseg.cmxa: wseg.ml
-	ocamlfind ocamlopt -g -package core_kernel,trie,pcre,camomile -a -o $@ $^
+	ocamlfind ocamlopt -g -package base,stdio,trie,pcre,camomile -a -o $@ $^
 
 wseg.ml: wseg.cmi
 
 
 wseg.cmi: wseg.mli
-	ocamlfind ocamlc -package core_kernel,trie,pcre,camomile $<
+	ocamlfind ocamlc -package base,stdio,trie,pcre,camomile $<
 
 .PHONY: install clean
 
@@ -28,7 +28,7 @@ test: test.byte
 	./test.byte
 
 test.byte: test.ml lib
-	ocamlfind ocamlc -linkpkg -g -package core_kernel,pcre,camomile,trie wseg.cma -o $@ $<
+	ocamlfind ocamlc -linkpkg -g -package base,stdio,pcre,camomile,trie wseg.cma -o $@ $<
 
 clean:
 	rm -f *.annot *.o *.cm* *.a
