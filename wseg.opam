@@ -18,6 +18,6 @@ depends: [
   "ppx_expect" {with-test}
 ]
 synopsis:
-  "A word identification system based on the maximum matching algorithm"
+  "A word identification system"
 description:
   "The full technology page of the MMSEG system is available on http://technology.chtsai.org/wseg/"
