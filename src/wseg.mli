@@ -5,7 +5,9 @@ module Dict :
         type 'a node
       end
 
+    (** pair of char or word and its probability of occurrence *)
     type entry= string * float
+
     type entries= entry list
 
     type word= string list * float
