@@ -1,5 +1,5 @@
 (*
- * wseg.ml
+ * wseg.mli
  * -----------
  * Copyright : (c) 2019, ZAN DoYe <zandoye@gmail.com>
  * Licence   : MIT
