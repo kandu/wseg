@@ -7,10 +7,7 @@ module Tuple2 = struct
 end
 
 module Dict = struct
-  module Tree = Trie.Make(struct
-      include String
-      let hash= Hashtbl.hash
-    end)
+  module Tree = Trie.Make(String)
 
   type entry= string * float
   type entries= entry list
