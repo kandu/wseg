@@ -44,8 +44,8 @@ module Dict :
     val candidates : float Tree.node -> string -> int -> chunk list
   end
 
+(** MMSEg: A Word Identification System Based on the Maximum Matching Algorithm. *)
 module MMSEG :
- (** MMSEg: A Word Identification System Based on the Maximum Matching Algorithm. *)
   sig
     (** MMSEG rule1: maximum matching *)
     val rule1 : Dict.chunk list -> Dict.chunk list
