@@ -7,6 +7,7 @@ license: "MIT"
 dev-repo: "git://github.com/kandu/wseg.git"
 build: [
   ["dune" "build" "-p" name "-j" jobs]
+  ["dune" "runtest" "-p" name "-j" jobs] { with-test }
 ]
 depends: [
   "ocaml" {>= "4.03.0"}
@@ -14,6 +15,7 @@ depends: [
   "base" {>= "v0.9"}
   "trie" {>= "1.0"}
   "camomile" {>= "1.0"}
+  "ppx_expect" {with-test}
 ]
 synopsis:
   "A word identification system based on the maximum matching algorithm"

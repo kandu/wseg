@@ -44,5 +44,6 @@ let ()=
   in
   let wordDict= Dict.buildIndex (List.append charEntries wordEntries) in
   test wordDict 4 "研究生命起源";
+  Out_channel.newline stdout;
   test wordDict 4 "主要是因为"
 
