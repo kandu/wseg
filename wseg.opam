@@ -17,6 +17,7 @@ depends: [
   "trie" {>= "1.0"}
   "camomile" {>= "1.0"}
   "ppx_expect" {with-test}
+  "pcre" {with-test}
 ]
 synopsis:
   "A word identification system"
