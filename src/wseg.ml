@@ -64,7 +64,8 @@ module Dict = struct
   let dispCands cd=
     List.iter ~f:(fun (wl:word list)->
       List.iter ~f:(fun (cl, _freq)->
-        List.iter ~f:print_string cl; print_string " ")
+        List.iter ~f:(Out_channel.output_string stdout) cl;
+        Out_channel.output_string stdout " ")
         wl;
         Out_channel.newline stdout)
       cd;
