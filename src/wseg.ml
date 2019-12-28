@@ -25,13 +25,13 @@ module Dict = struct
         if next > len then
           []
         else
-          String.sub s pos (next - pos) :: (to_list next)
+          String.sub s ~pos ~len:(next - pos) :: (to_list next)
     in
     to_list pos
 
   let buildEntries rawEntries=
     let quantity= List.fold
-      ~f:(fun acc (char, count)-> acc +. count)
+      ~f:(fun acc (_char, count)-> acc +. count)
       ~init:0.
       rawEntries
     in
@@ -47,10 +47,9 @@ module Dict = struct
 
   type word= string list * float
   type chunk= word list
-  type result= string list
 
   let dispConds cd=
-    List.iter ~f:(fun (cl, freq)->
+    List.iter ~f:(fun (cl, _freq)->
       List.iter ~f:(printf "%s ") cl;
       Out_channel.newline stdout)
       cd;
@@ -58,7 +57,7 @@ module Dict = struct
 
   let dispCands cd=
     List.iter ~f:(fun (wl:word list)->
-      List.iter ~f:(fun (cl, freq)->
+      List.iter ~f:(fun (cl, _freq)->
         List.iter ~f:print_string cl; print_string " ")
         wl;
         Out_channel.newline stdout)
@@ -66,7 +65,7 @@ module Dict = struct
     Out_channel.newline stdout
 
   let result_of_cand wl=
-    List.map ~f:(fun (cl, freq)->
+    List.map ~f:(fun (cl, _freq)->
       String.concat ~sep:"" cl)
       wl
     |> String.concat ~sep:"|"
@@ -89,7 +88,7 @@ module Dict = struct
         let words= condWord wordDict s in
         List.map
           ~f:(fun word->
-            let (cl, freq)= word in
+            let (cl, _freq)= word in
             let suffix= candidates
               (List.split_n s (List.length cl) |> Tuple2.get2)
               (max-1) in
@@ -139,7 +138,7 @@ let variance chunk=
 
 module MMSEG = struct
   let rule1 chunks=
-    let (len, res)=
+    let (_len, res)=
       List.fold
         ~f:(fun (len, res) chunk->
           let len_curr = length_chunk chunk in
@@ -157,7 +156,7 @@ module MMSEG = struct
     List.rev res
 
   let rule2 chunks=
-    let (avg, res)=
+    let (_avg, res)=
       List.fold
         ~f:(fun (avg, res) chunk->
           let open Float in
@@ -175,7 +174,7 @@ module MMSEG = struct
     List.rev res
 
   let rule3 chunks=
-    let (vari, res)=
+    let (_vari, res)=
       List.fold
         ~f:(fun (vari, res) chunk->
           let open Float in
@@ -193,7 +192,7 @@ module MMSEG = struct
     List.rev res
 
   let rule4 chunks=
-    let (possibility, res)=
+    let (_possibility, res)=
       List.fold
         ~f:(fun (possibility, res) chunk->
           let open Float in
