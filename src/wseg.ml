@@ -137,7 +137,7 @@ let variance chunk=
   (/.)
     (List.fold
       ~f:(fun acc word->
-        acc +. (Float.of_int (length_word word) -. avg) **. 2.)
+        acc +. (Caml.( ** ) (Float.of_int (length_word word) -. avg) 2.))
       ~init:0.
       chunk
     )
